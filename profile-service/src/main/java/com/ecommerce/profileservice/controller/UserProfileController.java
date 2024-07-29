@@ -1,14 +1,13 @@
 package com.ecommerce.profileservice.controller;
 
+import com.ecommerce.profileservice.dto.request.ProfileCreationRequest;
 import com.ecommerce.profileservice.dto.response.UserProfileResponse;
 import com.ecommerce.profileservice.service.UserProfileService;
 import com.ecommerce.profileservice.dto.response.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,6 +28,27 @@ public class UserProfileController {
     ApiResponse<List<UserProfileResponse>> getAllProfiles() {
         return ApiResponse.<List<UserProfileResponse>>builder()
                 .result(userProfileService.getAllProfiles())
+                .build();
+    }
+    @PostMapping("/users/create")
+    ApiResponse<UserProfileResponse> createProfile(@RequestBody ProfileCreationRequest profileCreationRequest) {
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userProfileService.createProfile(profileCreationRequest))
+                .build();
+    }
+
+    @PutMapping("/users/{profileId}")
+    ApiResponse<UserProfileResponse> updateProfile(@PathVariable String profileId, @RequestBody ProfileCreationRequest profileCreationRequest) {
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userProfileService.updateProfile(profileId, profileCreationRequest))
+                .build();
+    }
+
+    @DeleteMapping("/users/{profileId}")
+    ApiResponse<?> deleteProfile(@PathVariable String profileId) {
+        userProfileService.deleteProfile(profileId);
+        return ApiResponse.builder()
+                .result("Delete OK")
                 .build();
     }
 }

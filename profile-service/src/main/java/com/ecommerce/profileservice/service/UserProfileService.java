@@ -6,11 +6,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
-public abstract class UserProfileService {
-    public abstract UserProfileResponse createProfile(ProfileCreationRequest request);
+public interface UserProfileService {
+    UserProfileResponse createProfile(ProfileCreationRequest profileCreationRequest);
 
-    public abstract UserProfileResponse getProfile(String id);
+    UserProfileResponse getProfile(String id);
 
     @PreAuthorize("hasRole('ADMIN')")
-    public abstract List<UserProfileResponse> getAllProfiles();
+    List<UserProfileResponse> getAllProfiles();
+
+    UserProfileResponse updateProfile(String profileId, ProfileCreationRequest profileCreationRequest);
+
+    void deleteProfile(String profileId);
 }

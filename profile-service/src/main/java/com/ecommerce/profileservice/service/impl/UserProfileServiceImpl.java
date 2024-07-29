@@ -13,19 +13,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class UserProfileServiceImpl extends UserProfileService {
+public class UserProfileServiceImpl implements UserProfileService {
     UserProfileRepository userProfileRepository;
     UserProfileMapper userProfileMapper;
 
     @Override
     public UserProfileResponse createProfile(ProfileCreationRequest request) {
         UserProfile userProfile = userProfileMapper.toUserProfile(request);
+        userProfile.setCreateDateTime(LocalDateTime.now());
+        userProfile.setUpdateDateTime(LocalDateTime.now());
+        userProfile.setDeleteFlag(false);
         userProfile = userProfileRepository.save(userProfile);
 
         return userProfileMapper.toUserProfileReponse(userProfile);
@@ -45,5 +49,24 @@ public class UserProfileServiceImpl extends UserProfileService {
         var profiles = userProfileRepository.findAll();
 
         return profiles.stream().map(userProfileMapper::toUserProfileReponse).toList();
+    }
+
+    @Override
+    public UserProfileResponse updateProfile(String profileId, ProfileCreationRequest profileCreationRequest) {
+        UserProfile userProfile = userProfileMapper.toUserProfile(profileCreationRequest);
+        if(!userProfileRepository.existsById(profileId)) {
+            throw new RuntimeException("Profile not found");
+        }
+        userProfile.setUpdateDateTime(LocalDateTime.now());
+        userProfileRepository.save(userProfile);
+        return userProfileMapper.toUserProfileReponse(userProfile);
+    }
+
+    @Override
+    public void deleteProfile(String profileId) {
+        UserProfile userProfile = userProfileRepository.findById(profileId).orElseThrow(() -> new RuntimeException("Profile not found"));
+        userProfile.setDeleteFlag(true);
+        userProfile.setUpdateDateTime(LocalDateTime.now());
+        userProfileRepository.save(userProfile);
     }
 }
